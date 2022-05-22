@@ -19,7 +19,6 @@ public class Main {
             String buffer = getCurrentTrack();
             while (true) {
                 if (!buffer.equals(getCurrentTrack())) {
-                    System.out.println(getLyrics(getCurrentTrack()));
                     buffer = getCurrentTrack();
                 }
             }

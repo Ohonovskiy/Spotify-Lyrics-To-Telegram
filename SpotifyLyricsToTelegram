@@ -1,0 +1,175 @@
+package main;
+
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
+import java.util.Objects;
+
+import static main.Parser.getLyrics;
+import static main.Start.getCurrentTrack;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+
+        try {
+            telegramBotsApi.registerBot(new TelegramBot());
+            String buffer = getCurrentTrack();
+            while (true) {
+                if (!buffer.equals(getCurrentTrack())) {
+                    buffer = getCurrentTrack();
+                }
+            }
+        } catch (Exception e){
+            System.out.println(e);
+        }
+    }
+}
+
+package main;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class Parser {
+    public static String textToGoogleRef(String text){
+        return text.replaceAll(" ", "+").toLowerCase();
+    }
+
+    public static String getLyrics(String songName) throws Exception {
+        Path path = Paths.get("src/main/java/main/Lyrics");
+        String ref = songName.replaceAll(" ", "+").toLowerCase();
+
+        Document d = Jsoup.connect("https://www.google.com/search?q="+ref+"+lyrics").get();
+        Elements elements = d.getElementsByClass("ujudUb");
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path + ""));
+
+        StringBuilder read = new StringBuilder(elements.text());
+
+        for (int i = 0; i < elements.text().length(); i++) {
+            if(!(read.charAt(i) + "").equals((read.charAt(i) + "").toLowerCase()) && (read.charAt(i) + "").matches("[a-zA-Z]")){
+                if(i != 0){
+                    read.setCharAt(i-1, '\n');
+                }
+            }
+        }
+        writer.write(String.valueOf(read));
+
+        writer.flush();
+        writer.close();
+        try {
+            return Files.readString(path);
+        } catch (Exception e){
+            System.out.println("Lyrics file is empty");
+        }
+        return Files.readString(path);
+    }
+
+}
+
+package main;
+
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.IOException;
+import java.util.Objects;
+
+import static main.Parser.getLyrics;
+import static main.Start.getCurrentTrack;
+
+public class TelegramBot extends TelegramLongPollingBot {
+
+    @Override
+    public String getBotUsername() {
+        return "bots_username_bot";
+    }
+
+    @Override
+    public String getBotToken() {
+        return "Bot_token"; // token like 111111:AAAAAA
+    }
+
+    @Override
+    public void onUpdateReceived(Update update) {
+        SendMessage message = new SendMessage();
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String message_text = update.getMessage().getText();
+            long chat_id = update.getMessage().getChatId();
+
+            message.setChatId(chat_id + "");
+
+            if(message_text.equals("Get lyrics") || message_text.equals("gl") || message_text.equals("Gl") || message_text.equals("get lyrics") || message_text.equals("lyrics")) {
+                try {
+                    message.setText(Objects.requireNonNull(getCurrentTrack()) + "\n\n" + getLyrics(Objects.requireNonNull(getCurrentTrack())));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+package main;
+
+import com.neovisionaries.i18n.CountryCode;
+import org.apache.hc.core5.http.ParseException;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
+import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
+
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Start {
+    static final String accessToken = "YourSpotifyToken";
+
+    static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+            .setAccessToken(accessToken)
+            .build();
+    static final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest = spotifyApi
+            .getUsersCurrentlyPlayingTrack()
+            .market(CountryCode.SE)
+            .additionalTypes("track,episode")
+            .build();
+
+    public static String getCurrentTrack() {
+        try {
+            final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
+            Pattern a = Pattern.compile("Track\\(name=(?<track>[^,)]*), artists=\\[ArtistSimplified\\(name=(?<artist>[^)]*)\\,");
+            Matcher m = a.matcher(currentlyPlaying.toString());
+            String musicWithAuthor = "";
+
+            while (m.find()) {
+                musicWithAuthor = (m.group("track") + " by " + m.group("artist"));
+            }
+            return musicWithAuthor;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+}

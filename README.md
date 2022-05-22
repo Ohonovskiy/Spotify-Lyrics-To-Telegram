@@ -4,10 +4,10 @@
 - 💞️ I’m looking to collaborate on JAVA
 - 📫 yuriy.ohonovskiy@gmail.com
 - 
-- Telegram bot written in java using the python-telegram-bot library. It uses spotiapi, a lightweight java library for the Spotify Web API, to obtain the currently playing song in your account.
+- Telegram bot written in java using the telegrambots library. It uses spotiapi, a lightweight java library for the Spotify Web API, to obtain the currently playing song in your account.
 
 Setup
-To use this program you need create your own telegram bot or use the program just to parse any song from your spotify to local file.
+To use this program you need create your own telegram bot with BotFather or use the program just to parse any song from your spotify to local file.
 
 <!---
 Ohonovskiy/Ohonovskiy is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.

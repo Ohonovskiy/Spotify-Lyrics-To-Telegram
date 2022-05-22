@@ -19,12 +19,7 @@ public class Main {
             String buffer = getCurrentTrack();
             while (true) {
                 if (!buffer.equals(getCurrentTrack())) {
-                    System.out.println(getCurrentTrack());
-                    System.out.println(getLyrics(getCurrentTrack()));
                     buffer = getCurrentTrack();
-                    System.out.println("\n");
-                    System.out.println("\n");
-                    System.out.println("\n");
                 }
             }
         } catch (Exception e){

@@ -20,7 +20,7 @@ For local file
 3. Enjoy
 
 Issues
-1. Еhe program doesn't work with the song on which it was included, only if you skip it and start again
+1. The program doesn't work with the song on which it was included, only if you skip it and start again
 <!---
 Ohonovskiy/Ohonovskiy is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.

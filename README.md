@@ -7,7 +7,15 @@
 - Telegram bot written in java using the telegrambots library. It uses spotiapi, a lightweight java library for the Spotify Web API, to obtain the currently playing song in your account.
 
 Setup
-To use this program you need create your own telegram bot with BotFather or use the program just to parse any song from your spotify to local file.
+
+For telegram bot
+1. Create your bot with BotFather
+2. Enter your bot's token and name into TelegramBot.java (18 and 23 line)
+3. Get your Spotify token on https://developer.spotify.com/console/get-playlists/ and than enter it into Start.java (15 line)
+
+For local file
+1. Get your Spotify token on https://developer.spotify.com/console/get-playlists/ and than enter it into Start.java (15 line)
+2. Enjoy
 
 <!---
 Ohonovskiy/Ohonovskiy is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
